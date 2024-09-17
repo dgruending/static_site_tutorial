@@ -1,7 +1,7 @@
 import unittest
 
 from textnode import *
-from text_parser import split_nodes_delimiter
+from text_parser import split_nodes_delimiter, extract_markdown_images, extract_markdown_links
 
 class TestTextParser(unittest.TestCase):
     def test_bold_split(self):
@@ -63,6 +63,24 @@ class TestTextParser(unittest.TestCase):
         test_case = [TextNode("This is *bold** text.", text_type_text)]
         with self.assertRaises(Exception):
             split_nodes_delimiter(test_case, "**", text_type_bold)
+
+    def test_extract_markdown_images(self):
+        text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        result = [("rick roll", "https://i.imgur.com/aKaOqIh.gif"), ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg")]
+        self.assertEqual(result, extract_markdown_images(text))
+
+    def test_extract_markdown_links(self):
+        text = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
+        result = [("to boot dev", "https://www.boot.dev"), ("to youtube", "https://www.youtube.com/@bootdotdev")]
+        self.assertEqual(result, extract_markdown_links(text))
+
+    def test_extract_no_valid_image(self):
+        text = "No image here."
+        self.assertEqual([], extract_markdown_images(text))
+
+    def test_extract_broken_link(self):
+        text = "This is text with a link [to boot dev(https://www.boot.dev)"
+        self.assertEqual([], extract_markdown_links(text))
 
 
 if __name__ == "__main__":
