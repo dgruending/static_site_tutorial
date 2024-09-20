@@ -13,6 +13,8 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
                 raise Exception(f"Invalid Markdown syntax: Missing delimiter {delimiter} in {node.text}")
             else:
                 for id, text in enumerate(split_text):
+                    if text == "":
+                        continue
                     if id % 2 == 0:
                         new_nodes.append(TextNode(text, "text"))
                     else:

@@ -31,12 +31,12 @@ class TestTextParser(unittest.TestCase):
 
     def test_split_beginning(self):
         test_case = [TextNode("**Bold** at front.", text_type_text)]
-        expected = [TextNode("", text_type_text), TextNode("Bold", text_type_bold), TextNode(" at front.", text_type_text)]
+        expected = [TextNode("Bold", text_type_bold), TextNode(" at front.", text_type_text)]
         self.assertEqual(expected, split_nodes_delimiter(test_case, "**", text_type_bold))
 
     def test_split_end(self):
         test_case = [TextNode("A **bolded last part.**", text_type_text)]
-        expected = [TextNode("A ", text_type_text), TextNode("bolded last part.", text_type_bold), TextNode("", text_type_text)]
+        expected = [TextNode("A ", text_type_text), TextNode("bolded last part.", text_type_bold)]
         self.assertEqual(expected, split_nodes_delimiter(test_case, "**", text_type_bold))
 
     def test_other_type_nodes_bold_split(self):
