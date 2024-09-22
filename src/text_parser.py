@@ -66,3 +66,12 @@ def split_nodes_link(old_nodes):
 
 def text_to_textnodes(text):
     return split_nodes_delimiter(split_nodes_delimiter(split_nodes_delimiter(split_nodes_image(split_nodes_link([TextNode(text, text_type_text)])), "**", text_type_bold), "*", text_type_italic), "`", text_type_code)
+
+def markdown_to_blocks(markdown):
+    result = []
+    blocks = re.split(r"(\r\n|\r|\n)([ \t]*(\r\n|\r|\n))+", markdown)
+    for block in blocks:
+        block = block.strip()
+        if block != "":
+            result.append(block)
+    return result

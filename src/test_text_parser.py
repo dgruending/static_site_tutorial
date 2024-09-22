@@ -162,5 +162,55 @@ class TestTextParser(unittest.TestCase):
         ]
         self.assertEqual(expected, text_to_textnodes(text))
 
+    def test_markdown_to_blocks_single_block(self):
+        input = "# This is just a single block"
+        result = ["# This is just a single block"]
+        self.assertEqual(result, markdown_to_blocks(input))
+
+    def test_markdown_to_blocks_multiple_blocks(self):
+        input = """# this is the first block
+        
+        # Begin a second block
+        
+        some text for the third block
+        
+* and a list
+* for the fourth block
+* the end"""
+        result = ["# this is the first block",
+                  "# Begin a second block",
+                  "some text for the third block",
+                  "* and a list\n* for the fourth block\n* the end"]
+        self.assertEqual(result, markdown_to_blocks(input))
+
+    def test_markdown_to_blocks_excessive_newlines(self):
+        input = """# Start with a heading
+
+        
+        text for the second block"""
+        result = ["# Start with a heading", "text for the second block"]
+        self.assertEqual(result, markdown_to_blocks(input))
+
+    def test_markdown_to_blocks_more_whitespaces_between_blocks(self):
+        input = """# Header
+        
+                        
+                    
+        text"""
+        result = ["# Header", "text"]
+        self.assertEqual(result, markdown_to_blocks(input))
+
+    def test_markdown_to_blocks_trailing_leading_whitespaces(self):
+        input = """    # First block
+        
+        # Second block     
+        
+                * third block
+* is a list
+* with both leading and trailing whitespace         \n"""
+        result = ["# First block", "# Second block", "* third block\n* is a list\n* with both leading and trailing whitespace"]
+        self.assertEqual(result, markdown_to_blocks(input))
+
+
 if __name__ == "__main__":
     unittest.main()
