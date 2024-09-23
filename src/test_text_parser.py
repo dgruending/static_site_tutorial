@@ -211,6 +211,95 @@ class TestTextParser(unittest.TestCase):
         result = ["# First block", "# Second block", "* third block\n* is a list\n* with both leading and trailing whitespace"]
         self.assertEqual(result, markdown_to_blocks(input))
 
+    def test_block_to_block_type_heading1(self):
+        input = "# Simple Header"
+        expected = block_type_heading
+        self.assertEqual(expected, block_to_block_type(input))
+
+    def test_block_to_block_type_heading2(self):
+        input = "## More advanced header\nSome more text"
+        expected = block_type_heading
+        self.assertEqual(expected, block_to_block_type(input))
+
+    def test_block_to_block_type_heading4(self):
+        input = "#### Header 4"
+        expected = block_type_heading
+        self.assertEqual(expected, block_to_block_type(input))
+
+    def test_block_to_block_type_heading6(self):
+        input = "###### Header 6"
+        expected = block_type_heading
+        self.assertEqual(expected, block_to_block_type(input))
+
+    def test_block_to_block_type_heading7(self):
+        input = "####### Wrong header format"
+        expected = block_type_paragraph
+        self.assertEqual(expected, block_to_block_type(input))
+
+    def test_block_to_block_type_heading_no_space(self):
+        input = "#Forgot the space"
+        expected = block_type_paragraph
+        self.assertEqual(expected, block_to_block_type(input))
+
+    def test_block_to_block_type_code(self):
+        input = "```Here could stand your code.\nWrite it now\nGo\ton!```"
+        expected = block_type_code
+        self.assertEqual(expected, block_to_block_type(input))
+
+    def test_block_to_block_type_code_incorrect(self):
+        input = "```Forgot the last backtick``"
+        expected = block_type_paragraph
+        self.assertEqual(expected, block_to_block_type(input))
+
+    def test_block_to_block_type_quote(self):
+        input = "> some quotes\n> from some person\n> have some more"
+        expected = block_type_quote
+        self.assertEqual(expected, block_to_block_type(input))
+
+    def test_block_to_block_type_quote_missing_symbol(self):
+        input = ">Forgetting\nis human\n>isn't it."
+        expected = block_type_paragraph
+        self.assertEqual(expected, block_to_block_type(input))
+
+    def test_block_to_block_type_unordered_list_star(self):
+        input = "* a list\n* of some stuff\n* adding items\n* end"
+        expected = block_type_unordered_list
+        self.assertEqual(expected, block_to_block_type(input))
+
+    def test_block_to_block_type_unordered_list_dash(self):
+        input = "- a list\n- of some stuff\n- adding items\n- end"
+        expected = block_type_unordered_list
+        self.assertEqual(expected, block_to_block_type(input))
+
+    def test_block_to_block_type_unordered_list_mixed(self):
+        input = "* a list\n* of some stuff\n- adding items\n- end"
+        expected = block_type_unordered_list
+        self.assertEqual(expected, block_to_block_type(input))
+
+    def test_block_to_block_type_unordered_list_incorrect(self):
+        input = "* using a wrong symbol\n+ will wreck this list\n* see?"
+        expected = block_type_paragraph
+        self.assertEqual(expected, block_to_block_type(input))
+
+    def test_block_to_block_type_ordered_list(self):
+        input = "1. first item\n2. second item\n3. third item"
+        expected = block_type_ordered_list
+        self.assertEqual(expected, block_to_block_type(input))
+
+    def test_block_to_block_type_ordered_list_wrong_increment(self):
+        input = "1. first item\n3. second item\n4. third item"
+        expected = block_type_paragraph
+        self.assertEqual(expected, block_to_block_type(input))
+
+    def test_block_to_block_type_ordered_list_wrong_syntax(self):
+        input = "1. first item\n2.second item\n3. third item"
+        expected = block_type_paragraph
+        self.assertEqual(expected, block_to_block_type(input))
+
+    def test_block_to_block_type_paragraph(self):
+        input = "Just some text"
+        expected = block_type_paragraph
+        self.assertEqual(expected, block_to_block_type(input))
 
 if __name__ == "__main__":
     unittest.main()

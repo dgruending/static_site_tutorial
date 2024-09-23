@@ -2,6 +2,13 @@ import re
 
 from textnode import *
 
+block_type_paragraph = "paragraph"
+block_type_code = "code"
+block_type_quote = "quote"
+block_type_ordered_list = "ordered list"
+block_type_unordered_list = "unordered list"
+block_type_heading = "heading"
+
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     new_nodes = []
     for node in old_nodes:
@@ -75,3 +82,32 @@ def markdown_to_blocks(markdown):
         if block != "":
             result.append(block)
     return result
+
+def block_to_block_type(markdown_block):
+    # check for heading
+    if re.match(r"#{1,6} .*", markdown_block):
+        return block_type_heading
+    # check for code
+    if len(markdown_block) >= 6 and markdown_block[:3] == "```" and markdown_block[-3:] == "```":
+        return block_type_code
+    # for potential reuse
+    splited_markdown_block = markdown_block.splitlines()
+    # check for quote
+    if all(line.startswith(">") for line in splited_markdown_block):
+        return block_type_quote
+    # check for unordered list
+    if all(re.match(r"[*-] ", line) for line in splited_markdown_block):
+        return block_type_unordered_list
+    # check for ordered list
+    expected_number = 1
+    for line in splited_markdown_block:
+        if len(line) >= 3 and f"{expected_number}. " == line[:3]:
+            expected_number += 1
+        else:
+        # If no other case fits, it is a paragraph. Even if the syntax may be slightly wrong.
+        # inside the for loop for simplicity of writing and ordered list is checked last.
+            return block_type_paragraph
+    return block_type_ordered_list
+
+def markdown_to_html_node(markdown):
+    pass
