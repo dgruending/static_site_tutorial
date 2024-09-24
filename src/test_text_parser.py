@@ -301,5 +301,70 @@ class TestTextParser(unittest.TestCase):
         expected = block_type_paragraph
         self.assertEqual(expected, block_to_block_type(input))
 
+    def test_markdown_to_html_node_single_paragraph(self):
+        input = "a"
+        expected = ParentNode(tag="div", children=[ParentNode(tag="p", children=[LeafNode(value="a")])])
+        self.assertEqual(expected.to_html(), markdown_to_html_node(input).to_html())
+
+    def test_markdown_to_html_node_single_paragraph_with_markdown(self):
+        input = "This text has a **bold** word, an *italic*`here is some code`."
+        expected = "<div><p>This text has a <b>bold</b> word, an <i>italic</i><code>here is some code</code>.</p></div>"
+        self.assertEqual(expected, markdown_to_html_node(input).to_html())
+
+    def test_markdown_to_html_node_single_paragraphs_with_image(self):
+        input = "![image_text](url)"
+        expected = '<div><p><img src="url" alt="image_text"></img></p></div>'
+        self.assertEqual(expected, markdown_to_html_node(input).to_html())
+
+    def test_markdown_to_html_node_single_code_block(self):
+        input = "```some code here\nanother line\nthe end```"
+        expected = "<div><pre><code>some code here\nanother line\nthe end</code></pre></div>"
+        self.assertEqual(expected, markdown_to_html_node(input).to_html())
+
+    def test_markdown_to_html_node_single_quote_block(self):
+        input = ">some wisdom\n>some more wisdom\n>the end"
+        expected = "<div><blockquote>some wisdom\nsome more wisdom\nthe end</blockquote></div>"
+        self.assertEqual(expected, markdown_to_html_node(input).to_html())
+
+    def test_markdown_to_html_node_heading_1(self):
+        input = "# Title"
+        expected = "<div><h1>Title</h1></div>"
+        self.assertEqual(expected, markdown_to_html_node(input).to_html())
+
+    def test_markdown_to_html_node_node_heading_6(self):
+        input = "###### Subsubsubsubsubtitle"
+        expected = "<div><h6>Subsubsubsubsubtitle</h6></div>"
+        self.assertEqual(expected, markdown_to_html_node(input).to_html())
+
+    def test_markdown_to_html_node_unordered_list(self):
+        input = "* list item 1\n- list item 2\n- list item 3"
+        expected = "<div><ul><li>list item 1</li><li>list item 2</li><li>list item 3</li></ul></div>"
+        self.assertEqual(expected, markdown_to_html_node(input).to_html())
+
+    def test_markdown_to_html_node_ordered_list(self):
+        input = "1. list item 1\n2. list item 2\n3. list item 3"
+        expected = "<div><ol><li>list item 1</li><li>list item 2</li><li>list item 3</li></ol></div>"
+        self.assertEqual(expected, markdown_to_html_node(input).to_html())
+
+    def test_markdown_to_html_node_multi_blocks(self):
+        input = """
+# Title
+
+Here is some *intro* text.
+
+## ToDo list
+
+* task 1
+* task 2
+* **task 3**
+
+## Links
+
+1. [link1](url1)
+2. [link2](url2)
+"""
+        expected = '<div><h1>Title</h1><p>Here is some <i>intro</i> text.</p><h2>ToDo list</h2><ul><li>task 1</li><li>task 2</li><li><b>task 3</b></li></ul><h2>Links</h2><ol><li><a href="url1">link1</a></li><li><a href="url2">link2</a></li></ol></div>'
+        self.assertEqual(expected, markdown_to_html_node(input).to_html())
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,6 +1,7 @@
 import re
 
 from textnode import *
+from htmlnode import LeafNode, ParentNode
 
 block_type_paragraph = "paragraph"
 block_type_code = "code"
@@ -110,4 +111,42 @@ def block_to_block_type(markdown_block):
     return block_type_ordered_list
 
 def markdown_to_html_node(markdown):
-    pass
+    markdown_blocks = markdown_to_blocks(markdown)
+    root_node = ParentNode(tag="div", children=[])
+    for block in markdown_blocks:
+        block_type = block_to_block_type(block)
+        block_node = None
+        if block_type == block_type_paragraph:
+            children_nodes = text_to_html_nodes(block)
+            block_node = ParentNode(tag="p", children=children_nodes)
+        elif block_type == block_type_code:
+            children_nodes = text_to_html_nodes(block.strip("`"))
+            code_node = ParentNode(tag="code", children=children_nodes)
+            block_node = ParentNode(tag="pre", children=[code_node])
+        elif block_type == block_type_quote:
+            stripped_text = re.sub(r"^>", "", block, flags=re.MULTILINE)
+            children_nodes = text_to_html_nodes(stripped_text)
+            block_node = ParentNode(tag="blockquote", children=children_nodes)
+        elif block_type == block_type_heading:
+            stripped_text = re.sub(r"^#+ ", "", block, count=1)
+            header_level = len(block) - len(stripped_text) - 1
+            children_nodes = text_to_html_nodes(stripped_text)
+            block_node = ParentNode(tag=f"h{header_level}", children=children_nodes)
+        elif block_type == block_type_unordered_list:
+            stripped_lines = re.sub(r"^[*-] ", "", block, flags=re.MULTILINE).splitlines()
+            block_node = ParentNode(tag="ul", children=[])
+            for line in stripped_lines:
+                list_item_nodes = text_to_html_nodes(line)
+                block_node.children.append(ParentNode(tag="li", children=list_item_nodes))
+        elif block_type == block_type_ordered_list:
+            stripped_lines = re.sub(r"^\d+. ", "", block, flags=re.MULTILINE).splitlines()
+            block_node = ParentNode(tag="ol", children=[])
+            for line in stripped_lines:
+                list_item_nodes = text_to_html_nodes(line)
+                block_node.children.append(ParentNode(tag="li", children=list_item_nodes))
+        root_node.children.append(block_node)
+    return root_node
+
+def text_to_html_nodes(text):
+    textnodes = text_to_textnodes(text)
+    return [text_node_to_html_node(node) for node in textnodes]
