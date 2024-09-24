@@ -366,5 +366,29 @@ Here is some *intro* text.
         expected = '<div><h1>Title</h1><p>Here is some <i>intro</i> text.</p><h2>ToDo list</h2><ul><li>task 1</li><li>task 2</li><li><b>task 3</b></li></ul><h2>Links</h2><ol><li><a href="url1">link1</a></li><li><a href="url2">link2</a></li></ol></div>'
         self.assertEqual(expected, markdown_to_html_node(input).to_html())
 
+    def test_extract_title(self):
+        input = "# Header"
+        expected = "Header"
+        self.assertEqual(expected, extract_title(input))
+
+    def test_extract_title_front(self):
+        input = "# Header\n\n## Subtitle\n\nsome text"
+        expected = "Header"
+        self.assertEqual(expected, extract_title(input))
+
+    def test_extract_title_h2_front(self):
+        input = "##Something in front\n\n# Header"
+        expected = "Header"
+        self.assertEqual(expected, extract_title(input))
+
+    def test_extract_title_surrounding_whitespaces(self):
+        input = "#   \tHeader   \n"
+        expected = "Header"
+        self.assertEqual(expected, extract_title(input))
+
+    def test_extract_title_no_header(self):
+        input = "## Here will be no header\n\njust text"
+        self.assertRaises(Exception, extract_title, input)
+
 if __name__ == "__main__":
     unittest.main()

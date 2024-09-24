@@ -124,7 +124,7 @@ def markdown_to_html_node(markdown):
             code_node = ParentNode(tag="code", children=children_nodes)
             block_node = ParentNode(tag="pre", children=[code_node])
         elif block_type == block_type_quote:
-            stripped_text = re.sub(r"^>", "", block, flags=re.MULTILINE)
+            stripped_text = re.sub(r"^>\s*", "", block, flags=re.MULTILINE)
             children_nodes = text_to_html_nodes(stripped_text)
             block_node = ParentNode(tag="blockquote", children=children_nodes)
         elif block_type == block_type_heading:
@@ -150,3 +150,11 @@ def markdown_to_html_node(markdown):
 def text_to_html_nodes(text):
     textnodes = text_to_textnodes(text)
     return [text_node_to_html_node(node) for node in textnodes]
+
+def extract_title(markdown):
+    markdown_blocks = markdown_to_blocks(markdown)
+    for block in markdown_blocks:
+        if block_type_heading == block_to_block_type(block):
+            if matched_heading := re.search(r"^# \s*(.*)", block):
+                return matched_heading.group(1)
+    raise Exception("No valid <h1>/# Header found")
